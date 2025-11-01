@@ -4,10 +4,12 @@ set -euo pipefail
 source "$(dirname "$0")/common.sh"
 
 # Link any existing .json files
+shopt -s nullglob
 for file in "${CONFIG_DIR}"/*.json; do
     log_info "Linking $(basename "$file") to Minecraft directory..."
     ln -sf "$file" "${MINECRAFT_DIR}/$(basename "$file")"
 done
+shopt -u nullglob
 
 # Set proper permissions
 log_info "Setting permissions..."
