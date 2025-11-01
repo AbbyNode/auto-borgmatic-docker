@@ -1,4 +1,6 @@
 services:
   minecraft-modpack:
     image: eclarift/minecraft-modpack:latest
-    build: .
+    build:
+      context: ./minecraft-modpack
+      dockerfile: Dockerfile

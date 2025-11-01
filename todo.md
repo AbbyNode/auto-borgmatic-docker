@@ -1,6 +1,5 @@
 # What to do
 
-* Server properties
 * Borgmatic backups
 * Make server url automatic? most recent
 * Auto push backups to Athena
