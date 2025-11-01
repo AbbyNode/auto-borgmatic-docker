@@ -1,5 +1,5 @@
 services:
-  minecraft:
+  minecraft-server:
     image: eclipse-temurin:25-jre-alpine
     container_name: minecraft-server
     env_file:
@@ -8,12 +8,14 @@ services:
       - "25565:25565"
     volumes:
       - ./scripts:/scripts
+
       - minecraft-data:/minecraft
       - ./data/world:/minecraft/world
       - ./data/mods:/minecraft/mods
-      - ./data/config:/minecraft/config
       - ./data/logs:/minecraft/logs
-    working_dir: /minecraft
+
+      - ./data/config:/config
+      - ./data/config/mods:/minecraft/config
     command: >-
       sh -c "apk add bash wget unzip &&
             bash /scripts/entrypoint.sh"
