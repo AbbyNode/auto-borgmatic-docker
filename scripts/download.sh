@@ -16,25 +16,28 @@ if [ -z "${MODPACK_URL:-}" ]; then
     exit 1
 fi
 
-# Download modpack
+# Download modpack to temporary directory
+DOWNLOAD_DIR=$(mktemp -d)
 log_info "Downloading modpack from ${MODPACK_URL}..."
-wget --content-disposition --progress=bar:force -P "${MINECRAFT_DIR}" "${MODPACK_URL}"
+wget --content-disposition --progress=bar:force -P "${DOWNLOAD_DIR}" "${MODPACK_URL}"
 log_info "Download successful"
 
-# Find and extract the downloaded file
-MODPACK_FILE=$(find "${MINECRAFT_DIR}" -maxdepth 1 -type f -name '*.zip' | head -n 1)
+# Find the downloaded file
+MODPACK_FILE=$(find "${DOWNLOAD_DIR}" -maxdepth 1 -type f | head -n 1)
 if [ -z "${MODPACK_FILE}" ]; then
-    log_error "Failed to find downloaded modpack file in ${MINECRAFT_DIR}"
+    log_error "Failed to find downloaded modpack file in ${DOWNLOAD_DIR}"
+    rm -rf "${DOWNLOAD_DIR}"
     exit 1
 fi
 
 log_info "Extracting modpack from ${MODPACK_FILE}..."
 if unzip -q "${MODPACK_FILE}" -d "${MINECRAFT_DIR}"; then
     log_info "Extraction successful"
-    rm -f "${MODPACK_FILE}"
+    rm -rf "${DOWNLOAD_DIR}"
     log_info "Cleaned up modpack archive"
 else
     log_error "Failed to extract modpack"
+    rm -rf "${DOWNLOAD_DIR}"
     exit 1
 fi
 
