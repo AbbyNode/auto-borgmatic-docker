@@ -14,4 +14,7 @@ RUN \
     curl -L "$download_url" -o mcaselector.jar && \  
     chmod +x mcaselector.jar
 
-CMD ["java", "-jar", "mcaselector.jar", "--help"]
+COPY entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
+
+ENTRYPOINT ["./entrypoint.sh"]
