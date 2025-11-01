@@ -1,8 +1,11 @@
 #!/bin/bash
 set -e
 
-# Only download and extract modpack if startserver.sh doesn't exist
-if [ ! -f "/minecraft/startserver.sh" ]; then
+# Use STARTSCRIPT from .env or default to startserver.sh
+: ${STARTSCRIPT:=./startserver.sh}
+
+# Only download and extract modpack if the entrypoint script doesn't exist
+if [ ! -f "${STARTSCRIPT#./}" ]; then
     # Check if the modpack URL is provided
     if [ -n "$MODPACK_URL" ]; then
         echo "MODPACK_URL: $MODPACK_URL"
@@ -20,21 +23,21 @@ if [ ! -f "/minecraft/startserver.sh" ]; then
         unzip "/minecraft/$MODPACK_FILE" -d /minecraft || { echo "Failed to extract modpack"; exit 1; }
     fi
 
-    # Ensure the startserver.sh file exists after extraction
-    if [ ! -f "/minecraft/startserver.sh" ]; then
-        echo "startserver.sh not found in /minecraft. Please ensure the modpack includes it."
+    # Ensure the entrypoint script exists after extraction
+    if [ ! -f "${STARTSCRIPT#./}" ]; then
+        echo "${STARTSCRIPT} not found in /minecraft. Please ensure the modpack includes it."
         exit 1
     fi
+
+    # Make the entrypoint script executable
+    chmod +x "${STARTSCRIPT#./}"
 else
-    echo "Server files already exist (startserver.sh found), skipping download."
+    echo "Server files already exist (${STARTSCRIPT} found), skipping download."
 fi
 
 # Automatically accept the EULA
 echo "Accepting Minecraft EULA..."
 echo "eula=true" > /minecraft/eula.txt
 
-# Make startserver.sh executable
-chmod +x /minecraft/startserver.sh
-
-echo "Running startserver.sh..."
-exec /bin/bash /minecraft/startserver.sh
+echo "Running ${STARTSCRIPT}..."
+exec /bin/bash "${STARTSCRIPT#./}"
