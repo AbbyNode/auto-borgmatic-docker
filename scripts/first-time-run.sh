@@ -85,7 +85,10 @@ MAX_WAIT=300  # 5 minutes maximum wait
 ELAPSED=0
 
 while [ $ELAPSED -lt $MAX_WAIT ]; do
-    if [ -f "${WORLD_DIR}/level.dat" ] && \
+    if [ -d "${WORLD_DIR}" ] && \
+       [ -d "${WORLD_DIR}/data" ] && \
+       [ -d "${WORLD_DIR}/region" ] && \
+       [ -f "${WORLD_DIR}/level.dat" ] && \
        [ -f "${WORLD_DIR}/session.lock" ] && \
        [ -z "$(find "${WORLD_DIR}" -name '*.mca.tmp' 2>/dev/null)" ]; then
         log_info "World generation complete"
