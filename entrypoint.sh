@@ -28,13 +28,8 @@ fi
 echo "Accepting Minecraft EULA..."
 echo "eula=true" > /minecraft/eula.txt
 
-# Modify the startserver.sh script to increase timeout
-echo "Modifying startserver.sh to increase timeout..."
-sed -i 's/java -jar/java -Dsun.net.client.defaultConnectTimeout=120000 -Dsun.net.client.defaultReadTimeout=120000 -jar/' /minecraft/startserver.sh
-
 # Make startserver.sh executable
 chmod +x /minecraft/startserver.sh
 
-# Run the startserver.sh script
 echo "Running startserver.sh..."
 exec /bin/bash /minecraft/startserver.sh
