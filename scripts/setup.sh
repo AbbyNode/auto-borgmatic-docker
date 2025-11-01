@@ -32,18 +32,32 @@ post_start_setup() {
     fi
 
     log_info "Configuring server.properties..."
-    sed -i \
-        -e 's/^allow-flight=.*/allow-flight=true/' \
-        -e 's/^difficulty=.*/difficulty=normal/' \
-        -e 's/^enforce-whitelist=.*/enforce-whitelist=true/' \
-        -e 's/^force-gamemode=.*/force-gamemode=false/' \
-        -e 's/^gamemode=.*/gamemode=survival/' \
-        -e 's/^pvp=.*/pvp=false/' \
-        -e 's/^simulation-distance=.*/simulation-distance=32/' \
-        -e 's/^spawn-protection=.*/spawn-protection=0/' \
-        -e 's/^view-distance=.*/view-distance=16/' \
-        -e 's/^white-list=.*/white-list=true/' \
-        "${MINECRAFT_DIR}/server.properties"
+    
+    # Read default properties and update server.properties
+    DEFAULT_PROPS="${SCRIPTS_DIR}/default.properties"
+    SERVER_PROPS="${MINECRAFT_DIR}/server.properties"
+    
+    if [ ! -f "${DEFAULT_PROPS}" ]; then
+        log_error "default.properties not found at ${DEFAULT_PROPS}"
+        exit 1
+    fi
+    
+    # Process each property from default.properties
+    while IFS='=' read -r key value || [ -n "$key" ]; do
+        # Skip comments and empty lines
+        [[ "$key" =~ ^[[:space:]]*# ]] && continue
+        [[ -z "$key" ]] && continue
+        
+        # Trim whitespace
+        key=$(echo "$key" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        value=$(echo "$value" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        
+        # Update the property if it exists in server.properties
+        if grep -q "^${key}=" "${SERVER_PROPS}"; then
+            sed -i "s|^${key}=.*|${key}=${value}|" "${SERVER_PROPS}"
+            log_info "Updated ${key}=${value}"
+        fi
+    done < "${DEFAULT_PROPS}"
 
     # Mark setup as complete
     touch "${SETUP_COMPLETE_FLAG}"
