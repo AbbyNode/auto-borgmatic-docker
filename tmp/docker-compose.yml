@@ -15,6 +15,7 @@ services:
 
       - ./data/mods/jars:/minecraft/mods
       - ./data/mods/config:/minecraft/config
+      - ./
     restart: unless-stopped
     stdin_open: true
     tty: true
