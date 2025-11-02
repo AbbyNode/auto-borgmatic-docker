@@ -1,6 +1,5 @@
 # What to do
 
-* auto delete chunks https://github.com/Querz/mcaselector/wiki/CLI-Mode
 * Borgmatic backups
 * Make server url automatic? most recent
 * Auto push backups to Athena

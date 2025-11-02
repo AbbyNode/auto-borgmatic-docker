@@ -39,7 +39,7 @@ while IFS= read -r line; do
     fi
 done <<< "$yaml_content"
 
-# create group string based on array
+# Create group string based on array
 group_string=""
 for condition in "${delete_chunks[@]}"; do
     IFS='|' read -r last_updated inhabited_time <<< "$condition"
