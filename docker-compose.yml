@@ -26,7 +26,8 @@ services:
     env_file:
       - .env
     volumes:
-      - ./data/world:/minecraft/world
+      - ./data/world:/world
+      - ./data/config:/config
 
 volumes:
   minecraft-data:

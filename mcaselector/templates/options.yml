@@ -1,0 +1,11 @@
+# Define conditions for deleting old chunks based on LastUpdated and InhabitedTime
+
+delete_chunks:
+  - last_updated: "30 days"
+    inhabited_time: "2 hours"
+  - last_updated: "7 days"
+    inhabited_time: "1 hours"
+  - last_updated: "12 hours"
+    inhabited_time: "15 minutes"
+  - last_updated: "1 hour"
+    inhabited_time: "5 minutes"
