@@ -5,7 +5,8 @@ services:
     container_name: minecraft-setup
     volumes:
       - .:/workspace
-    restart: "no"
+      - shared-scripts:/opt/shared
+    restart: no
     profiles:
       - setup
 
@@ -15,12 +16,6 @@ services:
     container_name: minecraft-modpack
     env_file:
       - .env
-    environment:
-      EULA: "TRUE"
-      MEMORY: "4G"
-      USE_AIKAR_FLAGS: "TRUE"
-      ENABLE_ROLLING_LOGS: "TRUE"
-      TZ: "America/New_York"
     ports:
       - "25565:25565"
     volumes:
@@ -32,8 +27,6 @@ services:
   mcaselector:
     image: eclarift/mcaselector:latest
     container_name: mcaselector
-    env_file:
-      - .env
     volumes:
       - ./data/world:/world
       - ./data/config:/config
@@ -54,8 +47,6 @@ services:
   unmined:
     image: eclarift/unmined:latest
     container_name: unmined
-    env_file:
-      - .env
     volumes:
       - ./data/world:/world:ro
       - ./data/unmined-map:/output
@@ -72,8 +63,10 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared
     command: tunnel run
+    env_file:
+      - .env
     environment:
-      - TUNNEL_TOKEN=${CLOUDFLARED_TOKEN}
+      TUNNEL_TOKEN: ${CLOUDFLARED_TOKEN}
     restart: unless-stopped
     depends_on:
       - nginx
