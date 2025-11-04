@@ -7,6 +7,7 @@
 * Keep documentation concise and actionable.
 * Focus on how to run and use features.
 * Only document non-obvious implementation details if important.
+* Never include things like a generic "Features" or "Benefits" section which only restates known information.
 
 ## Workflow
 
