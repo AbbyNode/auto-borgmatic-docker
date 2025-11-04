@@ -28,7 +28,7 @@ The setup container will:
 - Create required directory structure
 - Create default `data/config/ofelia/config.ini`
 - Extract version-controlled scripts to `data/setup-scripts/`
- - Populate the shared scripts volume mounted at `/opt/shared`
+- Populate the shared scripts volume mounted at `/opt/shared`
 
 ## Configuration
 
@@ -136,7 +136,9 @@ docker exec mcaselector /scripts/delete-chunks.sh
 **Configuration:** `./data/config/mcaselector-options.yaml` (auto-created on first run)
 
 ### Job Scheduling
+
 Customize schedules in `data/config/ofelia/config.ini` using cron syntax, then restart:
+
 ```bash
 docker compose restart ofelia
 ```
