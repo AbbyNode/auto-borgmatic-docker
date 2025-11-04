@@ -4,7 +4,6 @@ services:
     container_name: minecraft-setup
     volumes:
       - .:/workspace
-      - shared-scripts:/opt/shared
     profiles:
       - setup
     restart: 'no'

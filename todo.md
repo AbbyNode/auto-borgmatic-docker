@@ -1,11 +1,4 @@
 
-# mains
-
-* gen world
-* server properties
-* whitelist
-* backups
-
 # What to do
 
 * Auto push backups to Athena
@@ -22,3 +15,10 @@
 # Later
 
 * Look into accepts-transfers
+
+# mains
+
+* gen world
+* server properties
+* whitelist
+* backups
