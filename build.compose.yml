@@ -4,21 +4,25 @@ services:
     build:
       context: ./setup
       dockerfile: Dockerfile
+
   minecraft-modpack:
     image: eclarift/minecraft-modpack:latest
     build:
       context: ./minecraft-modpack
       dockerfile: Dockerfile
+
   mcaselector:
     image: eclarift/mcaselector:latest
     build:
       context: ./modules/mcaselector
       dockerfile: Dockerfile
+
   borgmatic:
     image: eclarift/borgmatic:latest
     build:
       context: ./modules/borgmatic
       dockerfile: Dockerfile
+
   unmined:
     image: eclarift/unmined:latest
     build:
