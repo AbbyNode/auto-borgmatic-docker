@@ -15,33 +15,52 @@ docker compose pull && docker compose up -d
 Edit `.env` to configure your modpack:
 
 **Direct server file URL** (recommended):
-```
+
+```bash
 MODPACK_URL=https://mediafilez.forgecdn.net/files/7121/795/ServerFiles-4.14.zip
 ```
 
 **CurseForge page URL** (searches first 20 files only):
-```
+
+```bash
 MODPACK_URL=https://www.curseforge.com/minecraft/modpacks/all-the-mods-10
 ```
 
 **Set backup passphrase** (required for encryption):
+
+```bash
+BORG_PASSPHRASE=your-strong-passphrase
 ```
+
+```bash
+MODPACK_URL=https://www.curseforge.com/minecraft/modpacks/all-the-mods-10
+```
+
+**Set backup passphrase** (required for encryption):
+
+```bash
+BORG_PASSPHRASE=your-strong-passphrase
+
+```bash
 BORG_PASSPHRASE=your-strong-passphrase
 ```
 
 ## Server Management
 
 ### View Logs
+
 ```bash
 docker compose logs -f minecraft-modpack
 ```
 
 ### Interactive Console
+
 ```bash
 docker attach minecraft-modpack  # Ctrl+P, Ctrl+Q to detach
 ```
 
 ### Start/Stop
+
 ```bash
 docker compose down
 docker compose up --pull missing -d
@@ -50,6 +69,7 @@ docker compose up --pull missing -d
 ## Automated Tasks
 
 ### Backups (Daily 7:00 AM)
+
 Backs up world, config, mods, and logs to `./data/backups/borg-repository` with retention of 7 daily, 4 weekly, 6 monthly backups.
 
 ```bash
@@ -67,9 +87,11 @@ docker cp borgmatic:/tmp/restore ./restore/
 **Configuration:** `./data/config/borgmatic/config.yaml` (auto-created on first run)
 
 ### Chunk Cleanup (Daily 7:00 AM)
+
 Deletes old chunks based on age and player activity to save disk space.
 
 **Default rules:**
+
 - Not updated in 30 days + <2 hours player time
 - Not updated in 7 days + <1 hour player time
 - Not updated in 12 hours + <15 minutes player time
@@ -83,7 +105,9 @@ docker exec mcaselector /scripts/delete-chunks.sh
 **Configuration:** `./data/config/mcaselector-options.yaml` (auto-created on first run)
 
 ### Job Scheduling
+
 Customize schedules in `ofelia/config.ini` using cron syntax, then restart:
+
 ```bash
 docker compose restart ofelia
 ```
