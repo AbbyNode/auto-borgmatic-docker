@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 # If a command was provided, execute it
-if [ $# -gt 0 ]; then
+if (( $# > 0 )); then
     exec "$@"
 else
     # Keep container running for Ofelia to execute jobs
