@@ -5,6 +5,7 @@ services:
     container_name: minecraft-setup
     volumes:
       - .:/workspace
+      - shared-scripts:/opt/shared
     restart: "no"
     profiles:
       - setup
@@ -36,6 +37,8 @@ services:
     volumes:
       # Persistent folders (bind mount folders only, no individual files)
       - ./data:/data
+      # Shared scripts volume (read-only)
+      - shared-scripts:/opt/shared:ro
     restart: unless-stopped
     stdin_open: true
     tty: true
@@ -113,4 +116,6 @@ services:
 
 volumes:
   borgmatic-data:
+    driver: local
+  shared-scripts:
     driver: local

@@ -21,13 +21,8 @@ DEFAULT_PROPS="${TEMPLATES_DIR}/default.properties"
 SERVER_PROPS="${MINECRAFT_DIR}/server.properties" # If this file exists, server is ready for post-setup tasks.
 LINKED_PROPS="${CONFIG_DIR}/server.properties" # If this file exists, first time setup is considered complete.
 
+# Shared logging: if LOG_FILE is set, shared log functions will append to it.
 LOG_FILE="${LOGS_DIR}/modpack-setup.log"
-log_info() {
-    echo "[INFO] $(date '+%Y-%m-%d %H:%M:%S') - $*" | tee -a "${LOG_FILE}"
-}
-log_error() {
-    echo "[ERROR] $(date '+%Y-%m-%d %H:%M:%S') - $*" | tee -a "${LOG_FILE}" >&2
-}
-log_warn() {
-    echo "[WARN] $(date '+%Y-%m-%d %H:%M:%S') - $*" | tee -a "${LOG_FILE}" >&2
-}
+SHARED_DIR="${SHARED_DIR:-/opt/shared}"
+# shellcheck disable=SC1091
+[ -f "$SHARED_DIR/lib/log.sh" ] && source "$SHARED_DIR/lib/log.sh"

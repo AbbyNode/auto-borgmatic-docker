@@ -19,7 +19,7 @@ FROM itzg/minecraft-server:latest
 #   The wrapper resolves this to a direct URL automatically
 
 # Add URL resolution wrapper script
-COPY scripts/resolve-url-wrapper.sh /usr/local/bin/resolve-url-wrapper.sh
+COPY ./scripts/resolve-url-wrapper.sh /usr/local/bin/resolve-url-wrapper.sh
 RUN chmod +x /usr/local/bin/resolve-url-wrapper.sh
 
 # Use wrapper entrypoint that resolves URLs then calls itzg entrypoint

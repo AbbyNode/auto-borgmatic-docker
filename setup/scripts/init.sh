@@ -44,6 +44,21 @@ mkdir -p /workspace/data/backups/borg-repository
 mkdir -p /workspace/data/config/borgmatic
 echo "✓ Directory structure created"
 
+# Populate shared scripts volume if mounted
+if [ -d /opt/shared ]; then
+    echo ""
+    echo "Populating shared scripts volume at /opt/shared..."
+    mkdir -p /opt/shared
+    # Only copy if empty or missing core files
+    if [ ! -f /opt/shared/lib/log.sh ] || [ ! -f /opt/shared/url/resolve-curseforge-url.sh ]; then
+        rm -rf /opt/shared/*
+        cp -r /shared-src/* /opt/shared/
+        echo "✓ Shared scripts installed to /opt/shared"
+    else
+        echo "✓ Shared scripts already present"
+    fi
+fi
+
 echo ""
 echo "=== Setup Complete ==="
 echo ""

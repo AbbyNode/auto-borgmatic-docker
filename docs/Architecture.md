@@ -28,6 +28,7 @@ graph TB
 | Borgmatic | `eclarift/borgmatic:latest` | `./data/config/borgmatic/config.yaml` |
 | MCASelector | `eclarift/mcaselector:latest` | `./data/config/mcaselector-options.yaml` |
 | Setup | `eclarift/minecraft-setup:latest` | N/A (one-time setup) |
+| Shared libs | (mounted volume) | `/opt/shared` |
 
 ## Setup Container
 
@@ -41,6 +42,15 @@ setup/
 ```
 
 On first run, it extracts scripts to `data/setup-scripts/` and creates default configs in `data/config/`.
+
+### Shared Utilities
+
+Reusable bash helpers live under `setup/shared` and are mounted into containers at `/opt/shared` via a named volume populated by the `setup` service:
+
+- `lib/log.sh` — consistent logging to stdout/stderr and optional `LOG_FILE` tee
+- `url/resolve-curseforge-url.sh` — resolves CurseForge modpack pages to direct server file URLs
+
+Services that need these utilities mount the `shared-scripts` volume read-only at `/opt/shared`. The `setup` service mounts it read-write and populates it during the setup step.
 
 ## Custom Docker Images
 
