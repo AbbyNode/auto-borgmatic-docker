@@ -1,5 +1,14 @@
 services:
 
+  setup:
+    image: eclarift/minecraft-setup:latest
+    container_name: minecraft-setup
+    volumes:
+      - .:/workspace
+    restart: "no"
+    profiles:
+      - setup
+
   minecraft-modpack:
     image: eclarift/minecraft-modpack:latest
     container_name: minecraft-modpack
@@ -76,12 +85,15 @@ services:
   ofelia:
     image: mcuadros/ofelia:latest
     container_name: ofelia
+    entrypoint: ["/setup-scripts/ofelia-entrypoint.sh"]
     command: daemon --config=/etc/ofelia/config.ini
     volumes:
       # Docker socket for managing containers
       - /var/run/docker.sock:/var/run/docker.sock:ro
       # Ofelia configuration
-      - ./ofelia/config.ini:/etc/ofelia/config.ini:ro
+      - ./data/config/ofelia:/config:ro
+      # Entrypoint wrapper (extracted from setup image)
+      - ./data/setup-scripts/ofelia-entrypoint.sh:/setup-scripts/ofelia-entrypoint.sh:ro
     restart: unless-stopped
     depends_on:
       - borgmatic

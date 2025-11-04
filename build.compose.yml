@@ -1,4 +1,9 @@
 services:
+  setup:
+    image: eclarift/minecraft-setup:latest
+    build:
+      context: ./setup
+      dockerfile: Dockerfile
   minecraft-modpack:
     image: eclarift/minecraft-modpack:latest
     build:

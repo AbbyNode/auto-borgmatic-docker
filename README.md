@@ -5,10 +5,21 @@ Run a Minecraft modded server with automated backups and chunk cleanup.
 ## Quick Start
 
 ```bash
+# Download docker-compose.yml
 curl -O https://raw.githubusercontent.com/AbbyNode/minecraft-modpack-docker/main/docker-compose.yml
-curl -o .env https://raw.githubusercontent.com/AbbyNode/minecraft-modpack-docker/main/.env.example
-docker compose pull && docker compose up -d
+
+# Run setup container (creates .env, directories, and extracts scripts)
+docker compose --profile setup run --rm setup
+
+# Start the services
+docker compose up -d
 ```
+
+The setup container will:
+- Create `.env` with default configuration
+- Create required directory structure
+- Create default `data/config/ofelia/config.ini`
+- Extract version-controlled scripts to `data/setup-scripts/`
 
 ## Configuration
 
@@ -105,9 +116,7 @@ docker exec mcaselector /scripts/delete-chunks.sh
 **Configuration:** `./data/config/mcaselector-options.yaml` (auto-created on first run)
 
 ### Job Scheduling
-
-Customize schedules in `ofelia/config.ini` using cron syntax, then restart:
-
+Customize schedules in `data/config/ofelia/config.ini` using cron syntax, then restart:
 ```bash
 docker compose restart ofelia
 ```
