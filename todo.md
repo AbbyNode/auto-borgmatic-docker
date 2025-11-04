@@ -4,6 +4,8 @@
 * Auto push backups to Athena
 * get mods distant horizons <https://www.curseforge.com/minecraft/mc-mods/distant-horizons>
 * unmined server alongside <https://github.com/ich777/docker-unmined>
+* fix the unmined dockerfile
+* move borgmatic to separate project entirely
 
 # example links
 

@@ -84,5 +84,7 @@ services:
     restart: unless-stopped
 
 volumes:
+  scripts:
+    driver: local
   borgmatic-data:
     driver: local
