@@ -1,6 +1,6 @@
 # Minecraft Modded Server
 
-Run a Minecraft modded server with automated backups and chunk cleanup.
+Run a Minecraft modded server with automated backups and chunk cleanup. Uses [itzg/minecraft-server](https://github.com/itzg/docker-minecraft-server) as the base with CurseForge URL resolution.
 
 ## Quick Start
 
@@ -23,15 +23,15 @@ The setup container will:
 
 ## Configuration
 
-Edit `.env` to configure your modpack:
+Edit `.env` to configure your modpack and server properties:
 
-**Direct server file URL** (recommended):
+**Modpack URL - Direct server file URL** (recommended):
 
 ```bash
 MODPACK_URL=https://mediafilez.forgecdn.net/files/7121/795/ServerFiles-4.14.zip
 ```
 
-**CurseForge page URL** (searches first 20 files only):
+**Modpack URL - CurseForge page URL** (automatic resolution):
 
 ```bash
 MODPACK_URL=https://www.curseforge.com/minecraft/modpacks/all-the-mods-10
@@ -55,6 +55,16 @@ BORG_PASSPHRASE=your-strong-passphrase
 ```bash
 BORG_PASSPHRASE=your-strong-passphrase
 ```
+
+## How It Works
+
+This setup uses a hybrid approach:
+- **Base**: [itzg/minecraft-server](https://github.com/itzg/docker-minecraft-server) (community-maintained, 1000+ contributors)
+- **Added**: CurseForge page URL resolution without API key
+- **Supports**: Custom start scripts if present in modpack
+- **Fallback**: itzg's optimized launcher with Aikar flags
+
+All server files are accessible in `./data/` (world, config, mods, logs).
 
 ## Server Management
 

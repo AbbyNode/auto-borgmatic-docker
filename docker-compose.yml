@@ -10,21 +10,32 @@ services:
       - setup
 
   minecraft-modpack:
-    image: eclarift/minecraft-modpack:latest
+    build:
+      context: ./minecraft-modpack-itzg
     container_name: minecraft-modpack
     env_file:
       - .env
+    environment:
+      # Core settings
+      EULA: "TRUE"
+      
+      # MODPACK_URL is set in .env and processed by the hybrid image
+      # The image resolves CurseForge page URLs automatically without API key
+      
+      # Server properties loaded from .env file
+      
+      # Performance
+      MEMORY: "4G"
+      USE_AIKAR_FLAGS: "TRUE"
+      
+      # Additional settings
+      ENABLE_ROLLING_LOGS: "TRUE"
+      TZ: "America/New_York"
     ports:
       - "25565:25565"
     volumes:
-      - minecraft-data:/minecraft
-      - ./data/world:/minecraft/world
-      - ./data/logs:/minecraft/logs
-
-      - ./data/config:/config
-
-      - ./data/mods/jars:/minecraft/mods
-      - ./data/mods/config:/minecraft/config
+      # Persistent folders (bind mount folders only, no individual files)
+      - ./data:/data
     restart: unless-stopped
     stdin_open: true
     tty: true
@@ -101,7 +112,5 @@ services:
       - unmined
 
 volumes:
-  minecraft-data:
-    driver: local
   borgmatic-data:
     driver: local
