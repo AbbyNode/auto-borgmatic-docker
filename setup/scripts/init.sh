@@ -35,7 +35,7 @@ fi
 # Create required directories
 echo ""
 echo "Creating required directories..."
-local dirs=(
+dirs=(
     /workspace/data/world
     /workspace/data/logs
     /workspace/data/config
