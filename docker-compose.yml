@@ -12,6 +12,71 @@ services:
       - borgmatic-data:/root
     restart: unless-stopped
 
+  setup:
+    image: eclarift/borgmatic:latest
+    profiles:
+      - setup
+    volumes:
+      - ./:/workspace
+    working_dir: /workspace
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -e
+        echo "======================================"
+        echo "Borgmatic Docker Setup"
+        echo "======================================"
+        
+        # Create required directories
+        echo "Creating required directories..."
+        mkdir -p data/backups/borg-repository
+        mkdir -p data/config/borgmatic
+        mkdir -p data/world
+        mkdir -p data/config
+        mkdir -p data/mods
+        mkdir -p data/logs
+        echo "✓ Directories created"
+        
+        # Create .env file if not exists
+        if [ ! -f .env ]; then
+            echo "Creating .env file from example..."
+            cp .env.example .env
+            echo "✓ .env file created"
+        else
+            echo "✓ .env file already exists"
+        fi
+        
+        # Create .secrets file if not exists
+        if [ ! -f .secrets ]; then
+            echo "Creating .secrets file from example..."
+            cp .secrets.example .secrets
+            echo "⚠ WARNING: Please update BORG_PASSPHRASE in .secrets file!"
+            echo "⚠ The default passphrase is NOT secure!"
+        else
+            echo "✓ .secrets file already exists"
+        fi
+        
+        # Copy configuration template if not exists
+        if [ ! -f data/config/borgmatic/config.yaml ]; then
+            echo "Copying default borgmatic configuration..."
+            cp templates/borgmatic-config.yaml data/config/borgmatic/config.yaml
+            echo "✓ Configuration file created"
+        else
+            echo "✓ Configuration file already exists"
+        fi
+        
+        echo ""
+        echo "======================================"
+        echo "Setup completed successfully!"
+        echo "======================================"
+        echo ""
+        echo "Next steps:"
+        echo "1. Edit .secrets file and set a secure BORG_PASSPHRASE"
+        echo "2. Edit .env file if you need to customize settings"
+        echo "3. Edit data/config/borgmatic/config.yaml to configure backup sources"
+        echo "4. Start the borgmatic service: docker compose up -d"
+        echo ""
+
 volumes:
   borgmatic-data:
     driver: local
