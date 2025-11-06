@@ -15,22 +15,17 @@ Simple Docker setup for automated backups using Borgmatic and Ofelia.
    ```
    ⚠️ **Important:** Keep this passphrase safe - you need it to restore backups!
 
-3. **Create directories:**
-   ```bash
-   mkdir -p data borg-repository
-   ```
-
-4. **Start the containers:**
+3. **Start the containers:**
    ```bash
    docker compose up -d
    ```
 
-5. **Initialize the Borg repository (first time only):**
-   ```bash
-   docker exec borgmatic borgmatic init --encryption repokey-blake2
-   ```
+That's it! The setup will:
+- Automatically create the `data/` and `borg-repository/` directories
+- Initialize the Borg repository on first run
+- Start running automated backups daily at 2 AM
 
-6. **Test a manual backup:**
+4. **Optional - Test a manual backup:**
    ```bash
    docker exec borgmatic borgmatic --stats --verbosity 1
    ```

@@ -1,7 +1,29 @@
 services:
+  # One-time initialization service
+  borgmatic-init:
+    image: ghcr.io/borgmatic-collective/borgmatic:latest
+    container_name: borgmatic-init
+    environment:
+      - BORG_PASSPHRASE=${BORG_PASSPHRASE:-CHANGE_ME_TO_A_SECURE_PASSPHRASE}
+    env_file:
+      - .secrets
+    volumes:
+      - ./borg-repository:/mnt/borg-repository
+      - borgmatic-cache:/root/.cache/borg
+      - borgmatic-config:/root/.config/borg
+    # Initialize repository if it doesn't exist, then exit
+    entrypoint: /bin/sh
+    command: -c "if [ ! -f /mnt/borg-repository/config ]; then borg init --encryption repokey-blake2 /mnt/borg-repository && echo 'Repository initialized'; else echo 'Repository already exists'; fi"
+    restart: "no"
+
   borgmatic:
     image: ghcr.io/borgmatic-collective/borgmatic:latest
     container_name: borgmatic
+    depends_on:
+      borgmatic-init:
+        condition: service_completed_successfully
+    environment:
+      - BORG_PASSPHRASE=${BORG_PASSPHRASE:-CHANGE_ME_TO_A_SECURE_PASSPHRASE}
     env_file:
       - .secrets
     volumes:
@@ -18,10 +40,8 @@ services:
       # Ofelia job to run borgmatic backup daily at 2 AM
       ofelia.enabled: "true"
       ofelia.job-exec.borgmatic-backup.schedule: "0 2 * * *"
-      ofelia.job-exec.borgmatic-backup.command: "borgmatic --stats --verbosity 1"
+      ofelia.job-exec.borgmatic-backup.command: "borgmatic create --stats --verbosity 1"
     restart: unless-stopped
-    # Keep container running
-    command: tail -f /dev/null
 
   ofelia:
     image: mcuadros/ofelia:latest
