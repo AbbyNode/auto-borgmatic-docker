@@ -10,3 +10,5 @@ applyTo: "**/Dockerfile,**/Containerfile,**/docker-compose.yml,**/*.compose.yml"
 * Never bind mount files directly as this interferes with first time creation.
     * Bind mounts should only be used for directories.
     * Use `ln` inside containers to isolate to-be-bound files into bound directories.
+* Never run bash scripts on the host machine.
+    * All scripts must run inside containers.
