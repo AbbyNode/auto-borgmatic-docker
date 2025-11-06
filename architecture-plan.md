@@ -41,9 +41,8 @@ Automated borgmatic backups for game servers with minimal manual intervention. E
 ├── docker-compose.yml           # Main compose for borgmatic service
 ├── Dockerfile                   # Custom image with automation scripts
 ├── scripts/
-│   ├── entrypoint.sh           # Container initialization
-│   ├── backup.sh               # Backup execution logic
-│   └── wait-for-container.sh   # (NEW) Monitor game server container
+│   ├── entrypoint.sh           # Container initialization & auto-config
+│   └── backup.sh               # Backup execution logic
 ├── templates/
 │   └── borgmatic-config.yaml   # Template for borgmatic config
 └── data/                       # (User creates per-instance)
@@ -51,7 +50,7 @@ Automated borgmatic backups for game servers with minimal manual intervention. E
     │   └── borg-repository/    # Local borg repo (auto-initialized)
     ├── config/
     │   └── borgmatic/
-    │       └── config.yaml     # Instance-specific config
+    │       └── config.yaml     # Instance-specific config (auto-generated)
     └── game-server/            # Game data to backup
 ```
 
@@ -62,8 +61,8 @@ Automated borgmatic backups for game servers with minimal manual intervention. E
 
 **Additions**:
 - Bash, curl, jq (already present)
-- `wait-for-container.sh` - monitors game server container state
-- Enhanced `entrypoint.sh` - auto-initializes repo if missing
+- Auto-config generation script
+- Enhanced `entrypoint.sh` - auto-initializes repo and config
 - `backup.sh` - runs borgmatic with appropriate flags
 
 **Purpose**: Provides automation without host-side scripting.
@@ -75,55 +74,52 @@ Automated borgmatic backups for game servers with minimal manual intervention. E
 - Keeps container running or executes command
 
 **Proposed enhancements**:
-- ✅ Keep current auto-init behavior
-- ✅ Support env vars for repository location (local vs remote)
-- ✅ Support env vars for encryption mode
-- Add remote repository setup if specified
+- ✅ Keep current auto-init behavior for repository
+- Auto-generate default config file if missing
+- Read config from mounted directory
+- Support remote repository setup from config
 
-#### 3. Conditional Backup Scheduling
-**Approach**: Container monitor + cron/sleep loop
-
-**Options evaluated**:
-- Option A: Use `wait-for-container.sh` in loop that checks if game container is running
-- Option B: Docker healthcheck + restart policy
-- **Recommended: Option A** - More explicit control
+#### 3. Scheduled Backup Approach
+**Approach**: Simple scheduled loop with compose dependency management
 
 **Implementation**:
 ```bash
 # In backup loop script
 while true; do
-    if container_is_running "$GAME_CONTAINER_NAME"; then
-        run_borgmatic_backup
-    fi
+    run_borgmatic_backup
     sleep $BACKUP_INTERVAL
 done
 ```
 
-#### 4. Per-Instance Configuration
-**Environment Variables** (in .env):
-```bash
-# Repository settings
-BORG_REPO_PATH=/mnt/borg-repository    # or ssh://user@host/path
-BORG_PASSPHRASE=secure-passphrase
-BORG_ENCRYPTION=repokey-blake2
+**Scheduling Control**:
+- Use compose `depends_on` to ensure game server starts before borgmatic
+- Backups run on schedule while container is running
+- User can stop borgmatic container when not needed
 
-# Backup sources (comma-separated)
-BACKUP_SOURCES=/mnt/source/world,/mnt/source/config,/mnt/source/mods
+#### 4. Per-Instance Configuration
+**Configuration File** (auto-generated on first run):
+```yaml
+# /mnt/config/borgmatic.conf (or similar)
+# Repository settings
+repository: /mnt/borg-repository  # or ssh://user@host/path
+encryption: repokey-blake2
+
+# Backup sources
+backup_sources:
+  - /mnt/source/world
+  - /mnt/source/config
+  - /mnt/source/mods
 
 # Scheduling
-BACKUP_INTERVAL=3600  # seconds (1 hour)
-GAME_CONTAINER_NAME=minecraft-server
-
-# Remote setup (optional)
-REMOTE_HOST=user@backup-server.com
-REMOTE_PATH=/backups/minecraft-world1
-SSH_KEY_PATH=/root/.ssh/id_borgmatic
+backup_interval: 3600  # seconds (1 hour)
 ```
 
-**Borgmatic Config Template**:
-- Use environment variable substitution
-- Source directories from `BACKUP_SOURCES`
-- Repository path from `BORG_REPO_PATH`
+**Secrets** (in .secrets file, not committed):
+```bash
+BORG_PASSPHRASE=secure-passphrase
+```
+
+**Note**: Configuration is stored in bind-mounted directory for easy editing and persistence.
 
 #### 5. Container Dependencies
 **docker-compose.yml structure**:
@@ -140,7 +136,6 @@ services:
     depends_on:
       - game-server
     env_file:
-      - .env
       - .secrets
     volumes:
       - ./data/game-server:/mnt/source:ro
@@ -154,22 +149,18 @@ services:
 
 ### Phase 1: Core Auto-Initialization
 - [x] Current repo init in entrypoint works
-- [ ] Add environment variable support for:
+- [ ] Auto-generate default config on first run
+- [ ] Support config file for:
   - Custom encryption method
   - Remote repository paths
   - SSH key handling for remote repos
 
-### Phase 2: Conditional Backup Scheduling
-- [ ] Create `wait-for-container.sh` script
-  - Check if named container is running via Docker socket
-  - Handle container not found gracefully
+### Phase 2: Scheduled Backup with depends_on
 - [ ] Create backup scheduler script
-  - Loop with interval from env var
-  - Check container state before backup
-  - Execute backup only when game server running
-- [ ] Mount Docker socket to borgmatic container (read-only)
-  - Required for container monitoring
-  - Security consideration documented
+  - Loop with interval from config file
+  - Run backups on schedule
+- [ ] Use compose `depends_on` to ensure game server starts first
+- [ ] Container runs continuously for scheduled backups
 
 ### Phase 3: Remote Repository Support
 - [ ] Enhance entrypoint to detect remote repo format
@@ -179,11 +170,8 @@ services:
 
 ### Phase 4: Documentation
 - [ ] README with setup instructions
-- [ ] Example .env configurations
-  - Local-only setup
-  - Remote repository setup
-  - Multiple game servers
-- [ ] Restore procedure documentation
+- [ ] Example docker-compose.yml for easy setup
+- [ ] Brief instructions on running borgmatic commands in container
 
 ## Usage Pattern
 
@@ -194,37 +182,31 @@ services:
    mkdir -p data/config/borgmatic
    ```
 
-2. Create `.env` file with instance-specific settings
-   ```bash
-   BACKUP_SOURCES=/mnt/source/world
-   GAME_CONTAINER_NAME=minecraft-server
-   BACKUP_INTERVAL=3600
-   ```
-
-3. Create `.secrets` file
+2. Create `.secrets` file
    ```bash
    BORG_PASSPHRASE=unique-secure-passphrase
    ```
 
-4. Start containers:
+3. Start containers (config auto-generated on first run):
    ```bash
    docker compose up -d
    ```
 
-5. Repository auto-initializes on first run
-6. Backups run automatically every hour while game server is running
+4. Repository auto-initializes on first run
+5. Backups run automatically on schedule
+6. (Optional) Edit `/data/config/borgmatic/config.yaml` to customize settings
 
-### Restore Data
+### Running Borgmatic Commands
+Use `docker exec` to run borgmatic commands in the container:
 ```bash
 # List archives
 docker exec borgmatic-minecraft borgmatic list
 
 # Extract specific archive
 docker exec borgmatic-minecraft borgmatic extract --archive minecraft-2025-11-06-120000
-
-# Restore to original location
-docker exec borgmatic-minecraft borgmatic restore --archive latest
 ```
+
+For complete borgmatic documentation, see https://torsion.org/borgmatic/
 
 ## Design Decisions & Rationale
 
@@ -232,22 +214,23 @@ docker exec borgmatic-minecraft borgmatic restore --archive latest
 - **Required** to include automation scripts inside container
 - Avoids host-side script execution (violates constraints)
 - Based on official borgmatic image (follows guidelines)
-- Minimal additions (bash, monitoring scripts)
+- Minimal additions (bash, auto-config generation)
 
-### Why Docker Socket Access?
-- **Required** to monitor game server container state
-- Read-only mount minimizes security risk
-- Alternative would be external orchestrator (more complex)
-- User can disable if running backup continuously without conditions
+### Why Config File Instead of Environment Variables?
+- More flexible for complex configurations
+- Easier to edit and maintain
+- Bind-mounted directory allows direct file editing
+- Supports all borgmatic configuration options
+- Clear separation from secrets
 
-### Why Environment Variables for Config?
-- Per-instance customization without code changes
-- Standard Docker pattern
-- Easy to version control (except secrets)
-- Clear separation of instance-specific data
+### Why depends_on for Scheduling?
+- Simple and built into Docker Compose
+- No need for Docker socket access
+- Game server starts before borgmatic automatically
+- User controls backup timing by starting/stopping borgmatic container
 
 ### Why Keep Container Running?
-- Allows scheduled backups via internal cron/loop
+- Allows scheduled backups via internal loop
 - Enables `docker exec` for manual operations and restore
 - Consistent with game server container pattern
 - No external cron needed (host-side execution avoided)
@@ -256,25 +239,17 @@ docker exec borgmatic-minecraft borgmatic restore --archive latest
 
 1. **Encryption**: Using repokey-blake2 by default (secure, key in repo)
 2. **Secrets**: Passphrase in `.secrets` file (not committed)
-3. **Docker Socket**: Read-only access for monitoring only
-4. **SSH Keys**: Mounted from host secrets directory if remote backup
-5. **Backup Sources**: Mounted read-only to prevent accidental modification
+3. **SSH Keys**: Mounted from host secrets directory if remote backup
+4. **Backup Sources**: Mounted read-only to prevent accidental modification
 
 ## Limitations & Assumptions
 
-1. **Docker Socket**: Requires Docker socket access for container monitoring
-   - Can be disabled if user runs backups on fixed schedule
-2. **Same Docker Network**: Game server and borgmatic must be on same Docker host
-   - Remote backups supported, remote game servers not monitored
-3. **Single Game Server**: Each borgmatic instance monitors one game container
+1. **Same Docker Host**: Game server and borgmatic must be on same Docker host
+   - Remote borg repositories supported for backup storage
+2. **Single Game Server**: Each borgmatic instance backs up one game server
    - Multiple game servers need multiple borgmatic instances
-4. **Linux Host**: Scripts use Linux commands (standard for Docker)
+3. **Linux Host**: Scripts use Linux commands (standard for Docker)
 
 ## Future Enhancements (Out of Scope)
 
-- Web UI for backup management
-- Automatic backup verification
-- Multi-container monitoring (backup when any of N containers running)
-- Backup rotation alerts/notifications
-- Backup size monitoring and cleanup
 - Integration with cloud storage (S3, B2, etc.)
