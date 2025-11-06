@@ -1,35 +1,4 @@
 services:
-  setup:
-    image: eclarift/minecraft-setup:latest
-    container_name: minecraft-setup
-    volumes:
-      - .:/workspace
-    profiles:
-      - setup
-    restart: 'no'
-
-  minecraft-modpack:
-    container_name: minecraft-modpack
-    build:
-      context: ./minecraft-modpack
-    ports:
-      - '25565:25565'
-    env_file:
-      - .env
-    volumes:
-      - ./data:/data
-    stdin_open: true
-    tty: true
-    restart: unless-stopped
-
-  mcaselector:
-    image: eclarift/mcaselector:latest
-    container_name: mcaselector
-    volumes:
-      - ./data/world:/world
-      - ./data/config:/config
-    restart: unless-stopped
-
   borgmatic:
     image: eclarift/borgmatic:latest
     container_name: borgmatic
@@ -43,50 +12,6 @@ services:
       - borgmatic-data:/root
     restart: unless-stopped
 
-  unmined:
-    image: eclarift/unmined:latest
-    container_name: unmined
-    volumes:
-      - ./data/world:/world:ro
-      - ./data/unmined-map:/output
-    restart: unless-stopped
-
-  nginx:
-    image: nginx:alpine
-    container_name: nginx
-    volumes:
-      - ./data/unmined-map:/usr/share/nginx/html:ro
-    restart: unless-stopped
-
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    container_name: cloudflared
-    env_file:
-      - .env
-      - .secrets
-    depends_on:
-      - nginx
-    command: tunnel run
-    restart: unless-stopped
-
-  ofelia:
-    image: mcuadros/ofelia:latest
-    container_name: ofelia
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./data/config/ofelia:/config:ro
-      - ./data/setup-scripts/ofelia-entrypoint.sh:/setup-scripts/ofelia-entrypoint.sh:ro
-    depends_on:
-      - borgmatic
-      - mcaselector
-      - unmined
-    entrypoint:
-      - /setup-scripts/ofelia-entrypoint.sh
-    command: daemon --config=/etc/ofelia/config.ini
-    restart: unless-stopped
-
 volumes:
-  scripts:
-    driver: local
   borgmatic-data:
     driver: local
