@@ -23,14 +23,6 @@ else
     echo "✓ Using existing configuration"
 fi
 
-# Create crontab for borgmatic if it doesn't exist
-if [ ! -f /etc/borgmatic.d/crontab.txt ]; then
-    echo "Creating crontab for scheduled backups..."
-    # Run borgmatic every hour by default
-    echo "0 * * * * PATH=\$PATH:/usr/local/bin /usr/local/bin/borgmatic --stats --verbosity 1 2>&1" > /etc/borgmatic.d/crontab.txt
-    echo "✓ Crontab created"
-fi
-
 # Check if repository exists, if not initialize it
 if [ ! -d /mnt/borg-repository/data ] && [ ! -f /mnt/borg-repository/README ]; then
     echo "Initializing borg repository..."
@@ -57,6 +49,6 @@ if [ $# -gt 0 ]; then
     exec "$@"
 else
     # Default: use borgmatic's built-in supervisor with cron
-    echo "Starting borgmatic with cron..."
+    echo "Starting borgmatic with scheduled backups..."
     exec /init
 fi

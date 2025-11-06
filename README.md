@@ -12,11 +12,14 @@ Everything auto-initializes: directories, config, and borg repository.
 
 ## Configuration
 
-Backups run hourly by default. To customize:
+Backups run hourly by default. To customize the schedule, set `BACKUP_CRON` environment variable in docker-compose.yml:
 
-1. Edit `./data/config/borgmatic/crontab.txt` for schedule
-2. Edit `./data/config/borgmatic/config.yaml` for backup settings
-3. Restart: `docker compose restart`
+```yaml
+environment:
+  - BACKUP_CRON=0 1 * * *  # Daily at 1am
+```
+
+To customize backup settings, edit `./data/config/borgmatic/config.yaml` and restart.
 
 ## Set Passphrase
 

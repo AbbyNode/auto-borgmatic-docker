@@ -5,12 +5,14 @@ services:
     environment:
       # Borg passphrase - CHANGE THIS or use .secrets file
       - BORG_PASSPHRASE=${BORG_PASSPHRASE:-change-me-in-production}
+      # Backup schedule (cron format) - default: hourly
+      - BACKUP_CRON=0 * * * *
     volumes:
       # Source data to backup (read-only)
       - ./data/source:/mnt/source:ro
       # Borg repository storage
       - ./data/borg-repository:/mnt/borg-repository
-      # Borgmatic configuration (includes crontab)
+      # Borgmatic configuration
       - ./data/config/borgmatic:/etc/borgmatic.d
       # Borgmatic cache and state
       - borgmatic-data:/root

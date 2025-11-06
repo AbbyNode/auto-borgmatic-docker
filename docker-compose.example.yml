@@ -16,6 +16,8 @@ services:
     container_name: borgmatic
     depends_on:
       - minecraft
+    environment:
+      - BACKUP_CRON=0 * * * *  # Hourly backups
     env_file:
       - .secrets  # Optional: for custom passphrase
     volumes:
