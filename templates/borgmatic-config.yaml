@@ -1,48 +1,32 @@
-location:
-    # Source directories to backup
-    source_directories:
-        - /mnt/source/world
-        - /mnt/source/config
-        - /mnt/source/mods
-        - /mnt/source/logs
+# Source directories to backup
+source_directories:
+    - /mnt/source/world
+    - /mnt/source/config
+    - /mnt/source/mods
+    - /mnt/source/logs
 
-    # Patterns to exclude from backup
-    exclude_patterns:
-        - '*.tmp'
-        - '*/.cache'
+# Patterns to exclude from backup
+exclude_patterns:
+    - '*.tmp'
+    - '*/.cache'
 
-    # Repository location
-    repositories:
-        - path: /mnt/borg-repository
-          label: minecraft-local
+# Repository location
+repositories:
+    - path: /mnt/borg-repository
+      label: minecraft-local
 
-# Retention policy
-retention:
-    # Keep 7 daily, 4 weekly, 6 monthly archives
-    keep_daily: 7
-    keep_weekly: 4
-    keep_monthly: 6
+# Retention policy - Keep 7 daily, 4 weekly, 6 monthly archives
+keep_daily: 7
+keep_weekly: 4
+keep_monthly: 6
 
 # Consistency checks
-consistency:
-    checks:
-        - name: repository
-          frequency: 2 weeks
-        - name: archives
-          frequency: 1 month
+checks:
+    - name: repository
+      frequency: 2 weeks
+    - name: archives
+      frequency: 1 month
 
 # Storage settings
-storage:
-    compression: lz4
-    archive_name_format: 'minecraft-{now:%Y-%m-%d-%H%M%S}'
-
-# Hooks for before/after backup
-hooks:
-    before_backup:
-        - echo "Starting backup at $(date)"
-    
-    after_backup:
-        - echo "Backup completed at $(date)"
-    
-    on_error:
-        - echo "Backup failed at $(date)"
+compression: lz4
+archive_name_format: 'minecraft-{now:%Y-%m-%d-%H%M%S}'
