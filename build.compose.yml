@@ -1,6 +1,0 @@
-services:
-  borgmatic:
-    image: eclarift/borgmatic:latest
-    build:
-      context: ./modules/borgmatic
-      dockerfile: Dockerfile
