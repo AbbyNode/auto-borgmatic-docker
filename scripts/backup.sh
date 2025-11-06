@@ -8,9 +8,9 @@ echo "======================================"
 
 # Run borgmatic backup with stats and verbosity
 borgmatic --stats --verbosity 1 --files
-local exit_code=$?
+exit_code=$?
 
-if (( exit_code == 0 )); then
+if [ $exit_code -eq 0 ]; then
     echo "======================================"
     echo "Backup completed successfully"
     echo "Time: $(date)"

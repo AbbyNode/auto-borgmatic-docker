@@ -1,0 +1,32 @@
+services:
+  # Example game server - replace with your actual server
+  minecraft:
+    image: itzg/minecraft-server
+    container_name: minecraft
+    environment:
+      EULA: "TRUE"
+    volumes:
+      - ./data/source/minecraft:/data
+    ports:
+      - "25565:25565"
+    restart: unless-stopped
+
+  borgmatic:
+    build: .
+    container_name: borgmatic
+    depends_on:
+      - minecraft
+    environment:
+      - BACKUP_CRON=0 * * * *  # Hourly backups
+    env_file:
+      - .secrets  # Optional: for custom passphrase
+    volumes:
+      - ./data/source:/mnt/source:ro
+      - ./data/borg-repository:/mnt/borg-repository
+      - ./data/config/borgmatic:/etc/borgmatic.d
+      - borgmatic-data:/root
+    restart: unless-stopped
+
+volumes:
+  borgmatic-data:
+    driver: local

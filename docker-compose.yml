@@ -6,9 +6,13 @@ services:
       - .env
       - .secrets
     volumes:
-      - ./data:/mnt/source:ro
-      - ./data/backups/borg-repository:/mnt/borg-repository
+      # Source data to backup (read-only)
+      - ./data/source:/mnt/source:ro
+      # Borg repository storage
+      - ./data/borg-repository:/mnt/borg-repository
+      # Borgmatic configuration
       - ./data/config/borgmatic:/etc/borgmatic.d
+      # Borgmatic cache and state
       - borgmatic-data:/root
     restart: unless-stopped
 
