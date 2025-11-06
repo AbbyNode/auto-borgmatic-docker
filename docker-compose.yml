@@ -3,8 +3,6 @@ services:
     build: .
     container_name: borgmatic
     environment:
-      # Backup interval in seconds (default: 1 hour)
-      - BACKUP_INTERVAL=3600
       # Borg passphrase - CHANGE THIS or use .secrets file
       - BORG_PASSPHRASE=${BORG_PASSPHRASE:-change-me-in-production}
     volumes:
@@ -12,7 +10,7 @@ services:
       - ./data/source:/mnt/source:ro
       # Borg repository storage
       - ./data/borg-repository:/mnt/borg-repository
-      # Borgmatic configuration
+      # Borgmatic configuration (includes crontab)
       - ./data/config/borgmatic:/etc/borgmatic.d
       # Borgmatic cache and state
       - borgmatic-data:/root
