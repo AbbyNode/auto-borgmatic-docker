@@ -1,17 +1,40 @@
 services:
   borgmatic:
-    image: eclarift/borgmatic:latest
+    image: ghcr.io/borgmatic-collective/borgmatic:latest
     container_name: borgmatic
     env_file:
-      - .env
       - .secrets
     volumes:
+      # Source directories to backup (add more as needed)
       - ./data:/mnt/source:ro
-      - ./data/backups/borg-repository:/mnt/borg-repository
-      - ./data/config/borgmatic:/etc/borgmatic.d
-      - borgmatic-data:/root
+      # Borg repository location
+      - ./borg-repository:/mnt/borg-repository
+      # Borgmatic configuration
+      - ./config.yaml:/etc/borgmatic.d/config.yaml:ro
+      # Borgmatic cache and state
+      - borgmatic-cache:/root/.cache/borg
+      - borgmatic-config:/root/.config/borg
+    labels:
+      # Ofelia job to run borgmatic backup daily at 2 AM
+      ofelia.enabled: "true"
+      ofelia.job-exec.borgmatic-backup.schedule: "0 2 * * *"
+      ofelia.job-exec.borgmatic-backup.command: "borgmatic --stats --verbosity 1"
+    restart: unless-stopped
+    # Keep container running
+    command: tail -f /dev/null
+
+  ofelia:
+    image: mcuadros/ofelia:latest
+    container_name: ofelia
+    depends_on:
+      - borgmatic
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     restart: unless-stopped
 
 volumes:
-  borgmatic-data:
+  borgmatic-cache:
+    driver: local
+  borgmatic-config:
     driver: local

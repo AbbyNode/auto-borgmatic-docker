@@ -1,10 +1,7 @@
 location:
     # Source directories to backup
     source_directories:
-        - /mnt/source/world
-        - /mnt/source/config
-        - /mnt/source/mods
-        - /mnt/source/logs
+        - /mnt/source
 
     # Patterns to exclude from backup
     exclude_patterns:
@@ -14,7 +11,7 @@ location:
     # Repository location
     repositories:
         - path: /mnt/borg-repository
-          label: minecraft-local
+          label: local-backup
 
 # Retention policy
 retention:
@@ -34,7 +31,7 @@ consistency:
 # Storage settings
 storage:
     compression: lz4
-    archive_name_format: 'minecraft-{now:%Y-%m-%d-%H%M%S}'
+    archive_name_format: 'backup-{now:%Y-%m-%d-%H%M%S}'
 
 # Hooks for before/after backup
 hooks:
